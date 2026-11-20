@@ -15,7 +15,7 @@
 
 | Field | Value |
 |---|---|
-| Evidence level | verified / locally tested / community reported / inferred |
+| Evidence level | verified / locally tested / community reported / inferred / untested / ruled out |
 | Date of observation | |
 | Reproducible | yes / no |
 
