@@ -27,6 +27,24 @@ restricted titles: 2
 **What it does not do:** authenticate, refresh tokens, print tokens, write files or start
 sessions.
 
+## `catalog-diff.mjs`
+
+Compares two `catalog-scan.mjs --json` snapshots and reports only the meaningful drift in the
+restricted set — titles that appeared or disappeared, and allowlist/entitlement/session
+changes. This answers open question **Q3** (is the `xgpuweb` exclusion permanent, a
+launch-window rollout, or account-specific?) without eyeballing raw `diff`, whose output is
+dominated by the always-changing `scannedAt` timestamp.
+
+```bash
+node catalog-scan.mjs --json > day1.json
+node catalog-scan.mjs --json > day2.json
+node catalog-diff.mjs day1.json day2.json
+```
+
+Exit status is `0` when the restricted set is unchanged and `1` when it drifted, so it works
+as a change detector in a scheduled job. Read-only, local JSON only, no token and no network.
+Offline checks: `node catalog-diff.mjs --selftest`.
+
 ## Why the authentication tooling is not published
 
 The probes that perform sign-in, device-token issuance and session starts are kept in the
