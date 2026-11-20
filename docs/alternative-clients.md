@@ -87,6 +87,23 @@ produce an accepted restricted session. A proposed next step — an Xbox One emu
 not been demonstrated to produce a Microsoft-accepted identity. Treated as **community
 reported / untested**, not as evidence.
 
+## Sources
+
+Each project above is public; these are the canonical locations, so every claim here can be
+checked against the code. See also [references](references.md).
+
+| Project | Source |
+|---|---|
+| Better xCloud | <https://github.com/redphx/better-xcloud> |
+| Stratix | <https://github.com/nafields/stratix/blob/main/Docs/XCLOUD_PROTOCOL.md> |
+| Conch | <https://www.nuget.org/packages/Den.Dev.Conch> (.NET) · <https://www.npmjs.com/package/@dendotdev/conch> (Node) |
+| Greenlight | <https://github.com/unknownskl/greenlight> |
+| PSBox | <https://github.com/RafaelNGP/psbox-cloud-gaming> |
+| GR33N | <https://github.com/actuallyniaxx/GR33N> |
+| DeepPlay (resources) | <https://github.com/RhysEvoo/DeepPlay-Resources/issues/14> |
+| Bannerlator | <https://github.com/The412Banner/Bannerlator> |
+| GTAXC | No single canonical public repository located; treated as community reported. |
+
 ## What none of them show
 
 No public project in this review demonstrates all of:
