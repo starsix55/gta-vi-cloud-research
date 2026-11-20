@@ -11,8 +11,25 @@ account is entitled.
 ```bash
 GSSV_TOKEN="<gsToken>" \
 GSSV_BASE="https://<region>.gssv-play-prod.xboxlive.com" \
-node catalog-scan.mjs
+node catalog-scan.mjs [--json] [--selftest] [--help]
 ```
+
+Flags:
+
+- `--json` — machine-readable report (sorted restricted list, `scannedAt`, `truncated`).
+  Diff two days with `diff <(… --json) <(… --json)` to track catalogue drift (open
+  question Q3) without eyeballing the text output.
+- `--selftest` — offline unit checks for the `Retry-After` parsing; no token or network.
+- `--help` — usage.
+
+Behaviour:
+
+- On HTTP `429`/`503` it honours `Retry-After` and backs off a few times before giving up,
+  per the "respect rate limits" rule in [CONTRIBUTING](../CONTRIBUTING.md). One scan, not a
+  flood.
+- It paginates to a safety cap (`GSSV_MAX_PAGES`, default 40). If the catalogue is larger it
+  prints a truncation warning to stderr and marks `truncated` so partial counts are not
+  mistaken for a full scan.
 
 Output:
 
