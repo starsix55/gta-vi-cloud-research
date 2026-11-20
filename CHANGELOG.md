@@ -4,9 +4,6 @@ All notable changes to this repository. Dates are local to the investigation.
 
 ## Unreleased
 
-### Changed
-- Project renamed to **GTA VI Cloud Research**; repository will move to `gta-vi-cloud-research`.
-
 ### Added
 - Root `ROADMAP.md` and a restructured `docs/roadmap.md`: unknowns, dependency map and what
   each artifact would unlock.
@@ -18,6 +15,7 @@ All notable changes to this repository. Dates are local to the investigation.
 - Read-only catalogue scanner (`tools/catalog-scan.mjs`).
 
 ### Changed
+- Project renamed to **GTA VI Cloud Research**; repository will move to `gta-vi-cloud-research`.
 - "PC never performs device authentication" corrected: `gamingservices.exe` performs RPS
   device authentication over WinHTTP.
 - "Missing Play button means no subscription" corrected: the Xbox app was signed in as a
