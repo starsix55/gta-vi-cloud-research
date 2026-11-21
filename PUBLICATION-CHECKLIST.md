@@ -32,7 +32,7 @@ Manual steps before this folder becomes a public repository. Do not skip the sca
 
 ## Link check
 
-- [ ] All relative links resolve (see the verification script output).
+- [ ] All relative links resolve: `node tools/check-links.mjs .` reports `broken: 0`.
 - [ ] External links open and are not dead.
 - [ ] Badges render; no fake stars, downloads or release numbers.
 

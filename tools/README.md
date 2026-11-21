@@ -40,6 +40,19 @@ The request and claim **shapes** needed to reproduce the work are documented in
 [authentication-flow](../docs/authentication-flow.md) and
 [xsts-and-gssv](../docs/xsts-and-gssv.md).
 
+## `check-links.mjs`
+
+Verifies that every relative link in the repository's Markdown resolves to a file that
+exists. This is the verification script referred to by `PUBLICATION-CHECKLIST.md` and the
+"Relative links resolve" item in the PR template.
+
+```bash
+node tools/check-links.mjs .     # exit 0 = all resolve, 1 = something is broken
+```
+
+Read-only and no network: external `http`/`https`/`mailto` links are not fetched, only
+relative paths are resolved against the filesystem. Offline checks: `node tools/check-links.mjs --selftest`.
+
 ## Contributing a tool
 
 Good tools here are:
