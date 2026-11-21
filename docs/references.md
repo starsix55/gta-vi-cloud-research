@@ -23,6 +23,7 @@ Public sources used or reviewed. Links are external and may change.
 - Public Xbox Live protocol research — <https://github.com/KlugesBuch1/xbox-live-protocol>
 - OpenXbox xCloud Python client — <https://github.com/OpenXbox/xcloud-python>
 - Stratix protocol documentation — <https://github.com/nafields/stratix/blob/main/Docs/XCLOUD_PROTOCOL.md>
+- Conch Xbox Live auth library — .NET <https://www.nuget.org/packages/Den.Dev.Conch> · Node <https://www.npmjs.com/package/@dendotdev/conch> (documents a device token with PoP, ECDSA P-256)
 - Greenlight desktop client — <https://github.com/unknownskl/greenlight>
 - Better xCloud — <https://github.com/redphx/better-xcloud>
 - Bannerlator Android client — <https://github.com/The412Banner/Bannerlator>
