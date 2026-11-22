@@ -1,6 +1,6 @@
 # Current status
 
-**Snapshot:** 2026-11-21. Service behaviour changes without notice.
+**Snapshot:** 2026-11-22. Service behaviour changes without notice.
 
 ## Headline
 
@@ -30,6 +30,12 @@ a test metric and should not be read as "47% of a bypass".
 | The PC-app offering excludes the restricted titles | Locally tested |
 | Adding console fields to a `device.auth` request does not change the refusal | Locally tested |
 | Catalogue gating is per offering, not per device token | Locally tested |
+| The console's XSTS `signature` header is 76 bytes: BE policy `1`, BE FILETIME, 64-byte P-256 `r‖s` | Console capture decoded (2026-11-21) |
+| Replaying a captured signed XSTS returns `200` while the header timestamp is fresh and `403` once stale | Locally tested (2026-11-21) |
+| `XblaSignDigest` signs a 32-byte digest into 64 bytes, but it is not the signer XSTS trusts (`403`) | Locally tested (2026-11-21) |
+| A PC-minted user+device token gets `200` in `RETAIL` and `401 0x8015DC12` in `XDKS.1` | Locally tested (2026-11-21) |
+| The pre-authorized-request signer is in-proc only — no COM object or export exposes it | Static analysis (2026-11-22) |
+| Retail titles and the retail shell cannot be launched in Dev Mode | Environment constraint (2026-11-22) |
 
 ## What is not established
 
@@ -39,6 +45,14 @@ a test metric and should not be read as "47% of a bypass".
 - Whether the official Windows RPS device token influences downstream XSTS/GSSV claims.
 - Whether a real Samsung TV can start KI 2 Classic.
 - Whether the `xgpuweb` catalogue exclusion (observed 2026-11-20) is permanent.
+- Whether the `signature` header is required at all for the `gssv` relying party — no GSSV
+  session request has ever been sent without one.
+- Whether an XSTS in `XDKS.1` for `gssv` already sits in the existing flow captures.
+- Whether a self-built Dev Mode package can obtain a signature for a URL that is not
+  pre-authorized, or only for pre-authorized ones.
+
+The canonical list, each with the experiment that would answer it, is
+[open-questions.md](open-questions.md).
 
 ## Completion criteria
 
@@ -180,6 +194,59 @@ the real gate appears. Reproduced here:
 
 So the device gate is measurable again, and the denial is exactly what the model predicted.
 The earlier "title not available to Win32" reading was wrong.
+
+## The signed-request layer (2026-11-21 → 11-22)
+
+Above the token wall sits a second, smaller one: the console attaches a `signature` header to
+its XSTS requests, and a PC client cannot produce one.
+
+**Format.** base64 of 76 bytes: a 4-byte big-endian policy number (`1`), an 8-byte big-endian
+FILETIME, then a 64-byte raw ECDSA P-256 `r‖s`. No DER, no ASN.1.
+
+**Replay works inside a window.** Replaying a captured body together with its captured
+signature returns `200` and a 1,996-char token; the same pair later returns `403`. The
+signature therefore binds that exact body and a short validity window. A captured signature is
+a one-shot artefact, not a reusable signer — the durable part is the returned token.
+
+**`XblaSignDigest` is not that signer.** The export (`XblAuthConsoleExt.dll`, RVA `0x4500`)
+is callable: `(const void*, u32, void*, u32)`, input must be exactly 32 bytes, output buffer
+exactly 64 (`cmp r8d, 0x20` and `cmp [rsp+0x100], 0x40` in the disassembly). It hashes locally
+with BCrypt and hands the digest to the security processor, returning a 64-byte P-256
+signature. Signing an XSTS body with it — raw, or as `sha256(body)` — returns `403`.
+`XblAuthManager.dll` is the component that owns the PoP key: it imports
+`BCryptGenerateKeyPair` / `BCryptImportKeyPair` / `BCryptSignHash` alongside
+`GetSystemTimeAsFileTime`, which matches the header layout above.
+
+**The signer has no callable surface.** The 43-method auth-manager interface was recovered
+statically, including the signer's implementation (`0x276a0`, seven arguments); the full table
+is in [xblauthmanager-static-interface.md](xblauthmanager-static-interface.md). It cannot be
+called from outside: `XblAuthManager.dll` exports only `ServiceMain`, `XblAuthManagerProxy.dll`
+is a property facade rather than a marshaler of that interface, none of the 43 method names
+appear in the proxy or in the broker/connectivity extension DLLs, and `0x276a0` has no static
+reference anywhere in the module. Being in-proc-only is precisely why the console's own
+components can sign and a harness cannot.
+
+## What the Dev Mode constraint removes (2026-11-22)
+
+A route was proposed and withdrawn the same day: "launch an installed Xbox Live title and
+harvest the `gssv` XSTS it mints". **Retail titles and the retail shell cannot be launched in
+Dev Mode**, so there is no installed title to launch on this console. The same fact shows up in
+the token results: a PC-minted user+device token gets `401 0x8015DC12` in `XDKS.1` where it gets
+`200` in `RETAIL` — the console lives in the one sandbox that refuses it. (Different subcode
+from the `0x8015DC19` recorded above, same family: the dev-sandbox wall.) The constraint itself
+is already recorded in [failed-approaches.md](failed-approaches.md).
+
+What remains on the console side:
+
+| Route | Yields | Cost |
+|---|---|---|
+| Passive harvest from SystemOS traffic already captured | only what the OS already asked for; expiring tokens | free, offline |
+| Self-built Dev Mode package (a real title identity in `XDKS.1`) | a native title-side token; maybe signatures only for pre-authorized URLs | hours |
+| Register/launch `Microsoft.xCloudConsole2` | the production client's full GSSV login | high, package may be unobtainable |
+| One request with the token already mintable | a yes/no on whether the header is required at all | one call |
+
+The last row is the cheapest way to convert the open question into a fact and should be read
+before spending anything on the others.
 
 ## Snapshot drift
 

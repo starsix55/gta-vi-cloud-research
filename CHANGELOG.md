@@ -5,6 +5,16 @@ All notable changes to this repository. Dates are local to the investigation.
 ## Unreleased
 
 ### Added
+- Static interface recovery of `XblAuthManager.dll`: all 43 methods bind to their
+  implementations, and the pre-authorized-request signer (`0x276a0`) has no export, no proxy
+  method and no static reference — it is callable only in-proc.
+- `XblaSignDigest` (exported by `XblAuthConsoleExt.dll`) signs a 32-byte digest but is not the
+  signer XSTS trusts (`403`).
+- Withdrew the "harvest a `gssv` XSTS from an installed title" route: retail titles and the
+  retail shell cannot be launched in Dev Mode. A PC-minted user+device token is `200` in
+  `RETAIL` and `401 0x8015DC12` in `XDKS.1`.
+
+### Added
 - Q11 on console-identity concurrency: the 14-day device token is not single-use, XSTS is
   per-request and body-bound, and multi-account reuse is untested and ban-prone.
 
