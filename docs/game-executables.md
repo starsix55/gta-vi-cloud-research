@@ -45,6 +45,17 @@ None of that touches the cloud device gate.
 
 The repository therefore contains no game content, no dumps, and no links to them.
 
+### Static recompilation (2026)
+
+A community project, **Leonida**, is translating the Xbox Series build to run natively on Windows.
+Its own status page is explicit: shaders and assets are exported, but **the game does not boot
+yet**, the repository ships no game, keys or executable, and it requires the user's own package
+with files already readable on disk.
+
+Claims in chat servers about a "playable build" or a dated executable release are ahead of the
+repository. Even if it boots, it is an offline local build and does not touch cloud
+authentication.
+
 ## What would actually help
 
 If the goal is **cloud access to a restricted title on PC**, the useful artifacts are
