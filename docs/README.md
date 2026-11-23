@@ -41,7 +41,7 @@ Start here if you want the full picture rather than the summary.
 | [windows-gamingservices.md](windows-gamingservices.md) | RPS device auth from `gamingservices.exe`, WinHTTP capture |
 | [xbox-app-investigation.md](xbox-app-investigation.md) | App automation, missing Play button, account mismatch |
 | [reverse-engineering.md](reverse-engineering.md) | `XblAuthManager.dll`, API-set mapping, corrections |
-| [xblauthmanager-static-interface.md](xblauthmanager-static-interface.md) | 43-method interface, signer reachability, why no callable export exists |
+| [xblauthmanager-static-interface.md](xblauthmanager-static-interface.md) | SystemOS method inventory and Windows XSTS signing path |
 | [emulation-research.md](emulation-research.md) | Xbox OS images, Tizen TV emulator, trust boundaries |
 | [alternative-clients.md](alternative-clients.md) | DeepPlay, GR33N, Bannerlator, Better xCloud, GTAXC |
 | [experiments.md](experiments.md) | Experiment catalogue with results |

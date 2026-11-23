@@ -103,7 +103,7 @@ session-level tests need either a GTA VI entitlement or a console-side capture.
 | 53 | XSTS with the raw XCOS token: + user tokens / alone / RETAIL / `XDKS.1` / no sandbox | `400` in every combination — XCOS is not a token |
 | 54 | `XblaProcessXcosDeviceToken` from an app context | `0x87DD0001` — the XCOS → JWE conversion is system-only |
 | 55 | `device.auth` `XboxOne` on a real Xbox One, own 1,208-char attestation | `200`, XCOS 3,196 chars — type matches per model |
-| 56 | Fresh replay of the console's signed XSTS POST | `200`, JWE 1,996 chars; stale replay `403` — body-bound and time-bound |
+| 56 | Earlier and later replay of the captured signed console XSTS POST | Earlier `200` (JWE 1,996 chars). Later `403`. Rejection cause undetermined. |
 | 57 | XSTS `SandboxId: XDKS.1` from a retail account | `401 0x8015DC12` NoAccess — dev sandbox closed at token issuance |
 | 58 | `dnet` XSTS / device.auth from a prod-flighted dev unit | `400` in every combination — dnet needs a dnet-minted token |
 | 36 | Tampered `gsToken` signature | `401` |

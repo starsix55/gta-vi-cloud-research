@@ -114,8 +114,8 @@ Three candidate causes, in order of likelihood:
 
 ## Q11. Can one console identity back more than one account or session?
 
-A device token is minted at boot, before any user signs in, and lives ~14 days. XSTS tokens are
-per-request and body-bound. Nothing observed so far consumes the device token per session.
+A device token is minted at boot, before any user signs in, and lives ~14 days.
+Nothing observed so far consumes the device token per session.
 
 - **Unknown:** whether GSSV or session start binds the device record to one account or session at
   a time, and whether one device appearing for several accounts from different addresses trips

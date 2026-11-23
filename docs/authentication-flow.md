@@ -100,10 +100,10 @@ Passing a device token as a member of `UserTokens` fails; it must be
 `Properties.DeviceToken` (observed `400` vs `200`).
 
 **Console signature header** (community measured, 2026-11-22): console `xsts/authorize` POSTs
-carry a 76-byte header — 4-byte big-endian policy version, 8-byte big-endian FILETIME, and a
-64-byte raw ECDSA P-256 signature (`r||s`) over the body. A replay inside the freshness window
-returns `200`; a stale replay returns `403`. The signature is body-bound, so a stolen XSTS token
-alone is not enough.
+carry a Base64 signature header that decodes to 76 bytes — 4-byte big-endian policy version, 8-byte big-endian FILETIME, and a
+64-byte raw ECDSA P-256 signature (`r||s`). An earlier replay returned `200` and a later replay
+returned `403`. The inspected Windows build hashes a multi-field envelope that includes the
+body. See [XblAuthManager static interface](xblauthmanager-static-interface.md#windows-request-signing).
 
 ## 3. GSSV login
 
