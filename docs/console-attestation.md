@@ -153,7 +153,8 @@ app-level stub is irrelevant to what the network sees.
 
 `XblaProcessChallenge` is E_NOTIMPL in the **app's copy** of `XblAuthConsoleExt.dll`. The system
 service still performs the call. "The arm cannot be exercised from a dev-mode app" is right;
-"Dev Mode cannot mint a console token" is **wrong**. `XblaSignDigest` remains a shim.
+"Dev Mode cannot mint a console token" is **wrong**. The XSTS signature path is discussed in
+[XblAuthManager static interface](xblauthmanager-static-interface.md#windows-request-signing).
 
 A useful side observation: the XSTS request grows by ~1.7 KB when a device token is included, so
 body size alone tells you whether a capture presented one.

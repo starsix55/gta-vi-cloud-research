@@ -16,10 +16,9 @@ the registered COM proxy (`XblAuthManagerProxy.dll`).
 Addresses below are **RVAs**. This is the console build; the install-media ARM64 build is
 covered in [reverse-engineering.md](reverse-engineering.md).
 
-## Result: the interface exists, the callable door does not
+## Inspected exports and proxy surface
 
-The 43-method interface is real and fully enumerated below, **but it is not reachable
-from outside the auth manager**:
+The inspection recorded 43 method names and located their implementation bodies.
 
 * `XblAuthManager.dll` has exactly one export: `ServiceMain` (rva `0x110c0`).
 * `XblAuthManagerProxy.dll`'s registered objects
@@ -33,10 +32,9 @@ from outside the auth manager**:
   `XblAuthTokenBrokerExt.dll` or `XblConnectivityExt.dll` — only in
   `XblAuthManager.dll` itself.
 
-So `GetSignatureForPreAuthorizedRequest` is an **in-process API of the auth manager
-library**, not a method exposed over COM/IPC. Calling it requires already being inside a
-process that hosts `XblAuthManager.dll` with the right capability — which is exactly why
-the console's own components can produce the `signature` header and a PC harness cannot.
+The inspection found no export or matching method in the examined proxy surface for
+`GetSignatureForPreAuthorizedRequest`. Runtime reachability through other dispatch paths
+and any caller capability checks remain unverified.
 
 ## The interface (43 methods, in name-table order)
 
@@ -106,15 +104,24 @@ vtable order and cannot be used to derive slot indices.
 * Failure paths log `"onecoreuap\\xbox\\xblauth\\lib\\authmanagerimpl.cpp"` with line
   numbers `0x159e`, `0x15a0`, `0x15a3`, `0x15ac`, `0x15d1`, `0x15d6`, `0x15de` and error
   codes such as `0x87dd0021` (bad arg), `0x87dd0024`.
-* The function has **no static reference anywhere in the module** (no `call`, no `lea`,
-  no vtable RVA, no DIR64 fixup to it) — consistent with dispatch through an object
-  table that is never crossed by a direct reference, and with the in-proc-only conclusion.
+* The static search found no `call`, `lea`, vtable RVA or DIR64 fixup targeting this
+  entry. The dispatch mechanism remains unresolved.
 
-## Practical consequence
+## Windows request signing
 
-The `signature` header on the console's XSTS requests is produced by the auth manager
-service for its own pre-authorized requests, keyed to the caller's capability. There is
-no user-mode entry point on a PC, and none over COM, that will sign an arbitrary body with
-that key. Remaining routes are behavioural, not static: have a console component (title or
-xCloud package) perform the `gssv` XSTS itself, or accept the user+device XSTS that can
-already be minted without the header.
+**Verified by static analysis** of the AMD64 Windows 11 desktop `XblAuthManager.dll`,
+fixed PE file version `10.0.26100.9974`, Windows display version `10.0.26100.8117`,
+SHA-256 `68f48f9a3ab7f945c6936114abe2f17ee2e4c2f2b170e784336f337dfcd7bc06`.
+These RVAs refer to the Windows file.
+
+- The crypto initializer at `0x4f30c` opens SHA-256 for both branches. It generates
+  a software ECDSA P-256 key only when `XblaIsConsole()` is zero.
+- The XSTS builder at `0xaa6c0` calls the Policy 1 request signer at `0x61a24` and
+  omits a JSON `ProofKey` on this path. The signer hashes a multi-field request envelope
+  and builds the Base64 header from a 76-byte packed value.
+- The digest signing wrapper at `0x4f454` dispatches to `BCryptSignHash` on the desktop
+  branch and to the delay-imported `XblaSignDigest` when `XblaIsConsole()` is nonzero.
+
+The Windows disassembly establishes client-side control flow in this build. The SystemOS
+implementation that produced the captured signatures, its key storage, and XSTS
+verification policy remain unverified.

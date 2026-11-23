@@ -5,18 +5,19 @@ All notable changes to this repository. Dates are local to the investigation.
 ## Unreleased
 
 ### Added
-- Static interface recovery of `XblAuthManager.dll`: all 43 methods bind to their
-  implementations, and the pre-authorized-request signer (`0x276a0`) has no export, no proxy
-  method and no static reference — it is callable only in-proc.
-- `XblaSignDigest` (exported by `XblAuthConsoleExt.dll`) signs a 32-byte digest but is not the
-  signer XSTS trusts (`403`).
+- Static interface recovery of `XblAuthManager.dll` mapped 43 method names to implementation
+  bodies. The inspection found no export or matching proxy method for the pre-authorized
+  request helper (`0x276a0`).
+- Recorded `403` from direct `XblaSignDigest` trials. The rejection leaves signer trust
+  unresolved. Windows static analysis identifies `XblaSignDigest` on the console branch
+  of that build's XSTS request signer.
 - Withdrew the "harvest a `gssv` XSTS from an installed title" route: retail titles and the
   retail shell cannot be launched in Dev Mode. A PC-minted user+device token is `200` in
   `RETAIL` and `401 0x8015DC12` in `XDKS.1`.
 
 ### Added
-- Q11 on console-identity concurrency: the 14-day device token is not single-use, XSTS is
-  per-request and body-bound, and multi-account reuse is untested and ban-prone.
+- Q11 on console-identity concurrency: the device token lasts about 14 days. The tests
+  did not observe consumption after a session. Multi-account reuse remains untested.
 
 ### Added
 - Clarified the device claims: `dty` is environment-shaped (a Series can present `XboxOne` for
@@ -28,8 +29,8 @@ All notable changes to this repository. Dates are local to the investigation.
 ### Added
 - Cross-generation check: an original Xbox One returns `200` for `DeviceType: XboxOne` with its
   own 1,208-char attestation (XCOS 3,196 chars). The type match is per model, not "Scarlett only".
-- Console XSTS POSTs carry a 76-byte body-bound signature (policy version, FILETIME, raw
-  P-256 `r||s`); a fresh replay returns `200`, a stale one `403`.
+- Captured console XSTS POSTs carried a Base64 signature header that decodes to 76 bytes (policy version, FILETIME,
+  raw P-256 `r||s`). An earlier replay returned `200` and a later replay returned `403`.
 - `dnet` endpoints and the `XDKS.1` sandbox from a retail account are closed:
   `0x8015DC23` / `0x8015DC12`.
 
